@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VADER: Valence Aware Dictionary and sEntiment Reasoner</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script>
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [['$','$'], ['\\(','\\)']],
+                displayMath: [['$$','$$'], ['\\[','\\]']],
+                processEscapes: true
+            }
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>VADER: Valence Aware Dictionary and sEntiment Reasoner</h1>
+            <p class="subtitle">A detailed look at the mathematics and internal processes</p>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#lexicon">Lexicon</a></li>
+                    <li><a href="#preprocessing">Preprocessing</a></li>
+                    <li><a href="#rules">Heuristic Rules</a></li>
+                    <li><a href="#aggregation">Aggregation</a></li>
+                    <li><a href="#example">Example</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="overview">
+            <h2>Overview of VADER</h2>
+            <p>VADER (Valence Aware Dictionary and sEntiment Reasoner) is a lexicon and rule-based sentiment analysis tool specifically designed for social media texts. Its approach combines a dictionary of lexical features with grammatical and syntactical rules to better understand the sentiment expressed in text.</p>
+            
+            <div class="info-box">
+                <h3>Key Features of VADER</h3>
+                <ul>
+                    <li>Designed specifically for social media and microblog-like contexts</li>
+                    <li>Handles slang, emojis, acronyms, and informal language</li>
+                    <li>Accounts for punctuation, capitalization, and intensifiers</li>
+                    <li>No training required - ready to use out of the box</li>
+                    <li>Computationally efficient</li>
+                    <li>Highly transparent and interpretable</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="lexicon">
+            <h2>1. Lexicon Construction</h2>
+            <p>The foundation of VADER is its sentiment lexicon, which is a list of lexical features (words, emoticons, acronyms, etc.) each labeled with their semantic orientation as either positive or negative.</p>
+            
+            <div class="process-step">
+                <h4>Sentiment Scoring</h4>
+                <p>Each lexical feature in VADER's dictionary is rated on a scale from <span class="key-term">-4 (extremely negative)</span> to <span class="key-term">+4 (extremely positive)</span>.</p>
+                
+                <h4>Examples of Lexicon Entries:</h4>
+                <ul>
+                    <li>"love": +3.0</li>
+                    <li>"terrible": -3.0</li>
+                    <li>"😂" (tears of joy emoji): +3.4</li>
+                    <li>"meh": -1.8</li>
+                </ul>
+            </div>
+            
+            <p>The lexicon also includes special entries for:</p>
+            <ul>
+                <li><strong>Contextual intensifiers</strong>: Words that increase intensity (e.g., "extremely", "very")</li>
+                <li><strong>Negations</strong>: Words that invert sentiment (e.g., "not", "never")</li>
+                <li><strong>Modifiers</strong>: Words that dampen sentiment (e.g., "kind of", "slightly")</li>
+            </ul>
+        </section>
+
+        <section id="preprocessing">
+            <h2>2. Text Preprocessing</h2>
+            <p>Before applying sentiment analysis, VADER performs several preprocessing steps:</p>
+            
+            <div class="process-step">
+                <h4>Tokenization</h4>
+                <p>VADER splits the input text into tokens including words, punctuation, and emojis.</p>
+                <pre><code>Input: "I LOVE this movie!! 😊"
+Tokens: ["I", "LOVE", "this", "movie", "!", "!", "😊"]</code></pre>
+            </div>
+            
+            <div class="process-step">
+                <h4>Case Sensitivity</h4>
+                <p>Unlike many NLP tools, VADER preserves the case of words. All-caps words are flagged as emphasized.</p>
+                <ul>
+                    <li>"LOVE" would be detected as an emphasized form of "love"</li>
+                    <li>This capitalization can increase the intensity of the sentiment</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="rules">
+            <h2>3. Heuristic Rules for Adjusting Sentiment Scores</h2>
+            <p>What makes VADER particularly effective for social media is its set of grammatical and syntactical rules that modify sentiment scores based on context.</p>
+            
+            <div class="process-step">
+                <h4>A. Modifiers (Boosters/Dampeners)</h4>
+                <p>Words that intensify or reduce the sentiment of subsequent words:</p>
+                <ul>
+                    <li><strong>Boosters</strong>: Words like "very", "extremely", "incredibly" increase sentiment intensity</li>
+                    <li><strong>Dampeners</strong>: Words like "kind of", "somewhat", "slightly" decrease sentiment intensity</li>
+                </ul>
+                <p>Example calculation:</p>
+                <div class="math-formula">
+                    "Very good" = "good" (+3.0) * booster weight (e.g., +0.5) = +3.5
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <h4>B. Negations</h4>
+                <p>Words like "not", "no", "never" invert the polarity of sentiment words within a window of 3 words.</p>
+                <p>Example calculation:</p>
+                <div class="math-formula">
+                    "Not good" = "good" (+3.0) * negation factor (-1) = -3.0
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <h4>C. Punctuation Effect</h4>
+                <p>Punctuation can amplify sentiment:</p>
+                <ul>
+                    <li>Exclamation points (!) can increase the intensity of sentiment</li>
+                    <li>Multiple exclamation points have an additive effect (up to a point)</li>
+                    <li>Question marks (?) may slightly dampen sentiment or add complexity</li>
+                </ul>
+            </div>
+            
+            <div class="process-step">
+                <h4>D. Capitalization</h4>
+                <p>Words in ALL CAPS are interpreted as emphasized, increasing their sentiment intensity.</p>
+                <p>Example calculation:</p>
+                <div class="math-formula">
+                    "GOOD" = "good" (+3.0) + capitalization boost (e.g., +0.5) = +3.5
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <h4>E. Shifters (Conjunctions)</h4>
+                <p>Certain conjunctions like "but" shift the emphasis to the clause that follows them.</p>
+                <p>Example:</p>
+                <div class="math-formula">
+                    "The food was good, but the service was terrible."
+                </div>
+                <p>In this case, the negative sentiment of "terrible" receives more weight than the positive sentiment of "good" due to the presence of "but".</p>
+            </div>
+        </section>
+
+        <section id="aggregation">
+            <h2>4. Aggregation and Normalization</h2>
+            <p>After applying all the rules, VADER needs to combine the individual word scores into an overall sentiment score.</p>
+            
+            <div class="process-step">
+                <h4>Sum of Adjusted Scores</h4>
+                <p>First, all the adjusted valence scores from the text are summed.</p>
+            </div>
+            
+            <div class="process-step">
+                <h4>Normalization Formula</h4>
+                <p>The raw sum is then normalized to a compound score between -1 (most negative) and +1 (most positive) using the following formula:</p>
+                <div class="math-formula">
+                    $$\text{Compound Score} = \frac{\text{Sum}}{\sqrt{(\text{Sum})^2 + \alpha}}$$
+                </div>
+                <p>where \(\alpha = 15\) (an empirically derived normalization constant)</p>
+            </div>
+            
+            <h3>5. Classification</h3>
+            <p>The compound score is then categorized into sentiment classes using thresholds:</p>
+            <ul>
+                <li><strong>Positive sentiment</strong>: compound score ≥ 0.05</li>
+                <li><strong>Neutral sentiment</strong>: -0.05 < compound score < 0.05</li>
+                <li><strong>Negative sentiment</strong>: compound score ≤ -0.05</li>
+            </ul>
+            
+            <h3>6. Output Metrics</h3>
+            <p>VADER's final output includes:</p>
+            <ul>
+                <li><strong>Compound Score</strong>: A normalized, weighted composite score (-1 to +1)</li>
+                <li><strong>Positive, Neutral, Negative Scores</strong>: The proportion of the text that falls in each category</li>
+            </ul>
+        </section>
+
+        <section id="example">
+            <h2>Example Calculation</h2>
+            <p>Let's walk through a complete example of how VADER processes a simple text:</p>
+            
+            <div class="process-step">
+                <h4>Input Text:</h4>
+                <div class="math-formula">
+                    "The movie was extremely good!! 😊"
+                </div>
+                
+                <h4>Tokenization:</h4>
+                <pre><code>["The", "movie", "was", "extremely", "good", "!", "!", "😊"]</code></pre>
+                
+                <h4>Applying Rules:</h4>
+                <ol>
+                    <li>"extremely" (booster) applied to "good" (+3.0) → adjusted to +3.5</li>
+                    <li>"!!" (punctuation boost) → +0.3</li>
+                    <li>"😊" (emoji from lexicon) → +3.0</li>
+                </ol>
+                
+                <h4>Sum:</h4>
+                <div class="math-formula">
+                    3.5 + 0.3 + 3.0 = 6.8
+                </div>
+                
+                <h4>Normalization:</h4>
+                <div class="math-formula">
+                    $$\text{Compound Score} = \frac{6.8}{\sqrt{6.8^2 + 15}} \approx 0.96$$
+                </div>
+                
+                <h4>Classification:</h4>
+                <p>0.96 > 0.05, therefore this text is classified as <strong>strongly positive</strong>.</p>
+            </div>
+            
+            <div class="info-box">
+                <h3>Implementation Note</h3>
+                <p>In Python, VADER can be used very easily with the NLTK package:</p>
+                <pre><code>from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
+# Initialize the analyzer
+analyzer = SentimentIntensityAnalyzer()
+
+# Analyze text
+text = "The movie was extremely good!! 😊"
+scores = analyzer.polarity_scores(text)
+
+print(scores)
+# Output: {'neg': 0.0, 'neu': 0.316, 'pos': 0.684, 'compound': 0.9606}</code></pre>
+            </div>
+        </section>
+
+        <section id="limitations">
+            <h2>Strengths and Limitations</h2>
+            
+            <div class="process-step">
+                <h4>Key Strengths</h4>
+                <ul>
+                    <li>Handles slang, emojis, and informal language with high accuracy</li>
+                    <li>Rules account for contextual shifts (e.g., "but") and amplifiers</li>
+                    <li>Computationally efficient - no training or large computational resources required</li>
+                    <li>Highly transparent and interpretable - easy to understand why a text received a specific score</li>
+                    <li>Works out-of-the-box without fine-tuning</li>
+                </ul>
+            </div>
+            
+            <div class="process-step">
+                <h4>Limitations</h4>
+                <ul>
+                    <li>Rule-based heuristics may fail with sarcasm or complex syntax</li>
+                    <li>Less effective for long-form texts compared to machine learning models</li>
+                    <li>Limited by its lexicon - cannot adapt to new slang without updating</li>
+                    <li>May struggle with domain-specific language</li>
+                    <li>Performance is dependent on how well the lexicon covers the vocabulary in the text</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="conclusion">
+            <h2>Conclusion</h2>
+            <p>VADER represents an elegant balance between simplicity and effectiveness for sentiment analysis, particularly in social media contexts. Its rule-based approach makes it transparent, computationally efficient, and easy to implement, while still achieving high accuracy on short texts.</p>
+            
+            <p>For applications focused on social media, customer reviews, or other short-form content where computational resources may be limited, VADER remains a strong choice. However, for more complex or nuanced sentiment analysis tasks, especially with longer documents or where context is highly important, transformer-based models like <a href="roberta.html">RoBERTa</a> may be more appropriate.</p>
+            
+            <p><a href="index.html" class="btn">Back to Home</a></p>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 NLP Sentiment Analysis Models. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

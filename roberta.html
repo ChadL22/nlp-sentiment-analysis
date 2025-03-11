@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoBERTa: Robustly Optimized BERT Approach</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script>
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [['$','$'], ['\\(','\\)']],
+                displayMath: [['$$','$$'], ['\\[','\\]']],
+                processEscapes: true
+            }
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>RoBERTa: Robustly Optimized BERT Approach</h1>
+            <p class="subtitle">Understanding the mathematics and processes behind transformer-based sentiment analysis</p>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#architecture">Architecture</a></li>
+                    <li><a href="#pretraining">Pre-training</a></li>
+                    <li><a href="#finetuning">Fine-tuning</a></li>
+                    <li><a href="#math">Mathematical Foundations</a></li>
+                    <li><a href="#inference">Inference Process</a></li>
+                    <li><a href="#example">Example</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="overview">
+            <h2>Overview of RoBERTa</h2>
+            <p>RoBERTa (Robustly Optimized BERT Approach) is a transformer-based model optimized for NLP tasks, including sentiment analysis. Built upon BERT (Bidirectional Encoder Representations from Transformers), RoBERTa introduces key optimizations that enhance performance on a variety of language understanding tasks.</p>
+            
+            <div class="info-box">
+                <h3>Key Features of RoBERTa</h3>
+                <ul>
+                    <li>Built on the transformer architecture with self-attention mechanisms</li>
+                    <li>Pre-trained on massive text corpora (160GB+) using masked language modeling</li>
+                    <li>Uses dynamic masking patterns during pre-training</li>
+                    <li>Removes BERT's Next Sentence Prediction (NSP) objective</li>
+                    <li>Employs larger batch sizes and longer training</li>
+                    <li>Fine-tunable for specific tasks including sentiment analysis</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="architecture">
+            <h2>1. Model Architecture</h2>
+            <p>RoBERTa is based on the transformer architecture, which uses self-attention mechanisms instead of recurrent or convolutional neural networks.</p>
+            
+            <div class="process-step">
+                <h4>Key Components</h4>
+                <ul>
+                    <li><strong>Transformer Layers</strong>: Multiple stacked self-attention layers that process tokens in parallel</li>
+                    <li><strong>Multi-head Self-attention</strong>: Allows the model to focus on different parts of the input sequence simultaneously</li>
+                    <li><strong>Feed-forward Neural Networks</strong>: Process the output of the attention mechanism</li>
+                    <li><strong>Layer Normalization</strong>: Stabilizes training by normalizing the inputs across features</li>
+                    <li><strong>Residual Connections</strong>: Help with gradient flow during backpropagation</li>
+                </ul>
+            </div>
+            
+            <div class="process-step">
+                <h4>Tokenization</h4>
+                <p>Before processing text, RoBERTa uses a Byte-Pair Encoding (BPE) tokenizer that breaks words into subword units:</p>
+                <pre><code># Example of BPE tokenization
+"unhappiness" → ["un", "happiness"]
+"playing" → ["play", "ing"]</code></pre>
+                <p>This allows the model to handle out-of-vocabulary words by combining known subword units.</p>
+            </div>
+        </section>
+
+        <section id="pretraining">
+            <h2>2. Pre-Training Process</h2>
+            <p>RoBERTa is pre-trained on a massive corpus of text using self-supervised learning objectives that don't require manually labeled data.</p>
+            
+            <div class="process-step">
+                <h4>Masked Language Modeling (MLM)</h4>
+                <p>The primary pre-training objective is to predict randomly masked tokens in a sequence:</p>
+                <ol>
+                    <li>Randomly mask 15% of the tokens in the input</li>
+                    <li>Replace the masked tokens with:
+                        <ul>
+                            <li>The [MASK] token 80% of the time</li>
+                            <li>A random token 10% of the time</li>
+                            <li>The original token 10% of the time</li>
+                        </ul>
+                    </li>
+                    <li>Train the model to predict the original token at the masked positions</li>
+                </ol>
+                <p>Example:</p>
+                <div class="math-formula">
+                    Original: "The movie was great"<br>
+                    Masked: "The movie was [MASK]"<br>
+                    Task: Predict "great" at the masked position
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <h4>Dynamic Masking</h4>
+                <p>Unlike BERT, which applies masking once during data preprocessing, RoBERTa implements dynamic masking where different tokens are masked in each training epoch. This exposes the model to more masking patterns and improves performance.</p>
+            </div>
+            
+            <div class="process-step">
+                <h4>Training Data</h4>
+                <p>RoBERTa is trained on 160GB of text data, including:</p>
+                <ul>
+                    <li>BookCorpus (16GB)</li>
+                    <li>English Wikipedia (13GB)</li>
+                    <li>CC-News (76GB)</li>
+                    <li>OpenWebText (38GB)</li>
+                    <li>Stories (31GB)</li>
+                </ul>
+            </div>
+            
+            <div class="process-step">
+                <h4>Optimizations over BERT</h4>
+                <ul>
+                    <li>Removal of Next Sentence Prediction (NSP) objective</li>
+                    <li>Larger batch sizes (8K+ sequences)</li>
+                    <li>Longer training time</li>
+                    <li>Dynamic masking patterns</li>
+                    <li>Longer sequences during training</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="finetuning">
+            <h2>3. Fine-Tuning for Sentiment Analysis</h2>
+            <p>After pre-training, RoBERTa can be fine-tuned on labeled sentiment data to create a specialized sentiment analysis model.</p>
+            
+            <div class="process-step">
+                <h4>Fine-tuning Process</h4>
+                <ol>
+                    <li><strong>Add a Classification Head</strong>: Attach a dense layer on top of the transformer output for the [CLS] token</li>
+                    <li><strong>Prepare Labeled Data</strong>: Use datasets with sentiment labels (e.g., positive, neutral, negative)</li>
+                    <li><strong>Train End-to-End</strong>: Fine-tune all model parameters with a lower learning rate than during pre-training</li>
+                </ol>
+            </div>
+            
+            <div class="process-step">
+                <h4>Input Format for Fine-tuning</h4>
+                <pre><code># For sentiment analysis fine-tuning
+[CLS] This movie was fantastic! [SEP]
+
+# For sentence-pair tasks
+[CLS] The acting was great. [SEP] The plot was confusing. [SEP]</code></pre>
+                <p>The [CLS] token's final hidden state is used for classification decisions.</p>
+            </div>
+            
+            <div class="process-step">
+                <h4>Loss Function</h4>
+                <p>For sentiment classification, cross-entropy loss is typically used:</p>
+                <div class="math-formula">
+                    $$\mathcal{L} = -\sum_{c=1}^{C} y_c \log(\hat{y}_c)$$
+                </div>
+                <p>Where:</p>
+                <ul>
+                    <li>\( C \) is the number of classes (e.g., 3 for positive, neutral, negative)</li>
+                    <li>\( y_c \) is the true label (0 or 1)</li>
+                    <li>\( \hat{y}_c \) is the predicted probability for class \( c \)</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="math">
+            <h2>4. Mathematical Foundations</h2>
+            <p>At the core of RoBERTa's effectiveness is the self-attention mechanism, which allows the model to weigh the importance of different words in a sequence.</p>
+            
+            <div class="process-step">
+                <h4>A. Self-Attention Mechanism</h4>
+                <p>For each token, the model computes query (Q), key (K), and value (V) vectors:</p>
+                <div class="math-formula">
+                    $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+                </div>
+                <p>Where:</p>
+                <ul>
+                    <li>\( Q \) is the query matrix</li>
+                    <li>\( K \) is the key matrix</li>
+                    <li>\( V \) is the value matrix</li>
+                    <li>\( d_k \) is the dimension of the key vectors</li>
+                </ul>
+                <p>The division by \( \sqrt{d_k} \) is for scaling to prevent extremely small gradients.</p>
+            </div>
+            
+            <div class="process-step">
+                <h4>B. Multi-Head Attention</h4>
+                <p>Rather than performing a single attention function, the transformer uses multiple attention heads in parallel:</p>
+                <div class="math-formula">
+                    $$\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \text{head}_2, ..., \text{head}_h)W^O$$
+                </div>
+                <p>Where each head is computed as:</p>
+                <div class="math-formula">
+                    $$\text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)$$
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <h4>C. Positional Encoding</h4>
+                <p>Since transformer models process all tokens in parallel (rather than sequentially like RNNs), positional information is added to the token embeddings:</p>
+                <div class="math-formula">
+                    $$\text{Input Embedding} = \text{Token Embedding} + \text{Positional Embedding}$$
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <h4>D. Classification Layer</h4>
+                <p>For sentiment analysis, the final [CLS] token representation is fed into a softmax layer:</p>
+                <div class="math-formula">
+                    $$P(\text{class}) = \text{softmax}(W \cdot h_{\text{[CLS]}} + b)$$
+                </div>
+                <p>Where \( h_{\text{[CLS]}} \) is the final hidden state of the [CLS] token, and \( W \) and \( b \) are learnable parameters.</p>
+            </div>
+        </section>
+
+        <section id="inference">
+            <h2>5. Inference Process</h2>
+            <p>When using a fine-tuned RoBERTa model for sentiment analysis, the following steps are performed:</p>
+            
+            <div class="process-step">
+                <h4>1. Tokenization</h4>
+                <ul>
+                    <li>Split the input text into subtokens using BPE</li>
+                    <li>Add special tokens: [CLS] at the beginning and [SEP] at the end</li>
+                    <li>Convert tokens to token IDs using the vocabulary</li>
+                </ul>
+            </div>
+            
+            <div class="process-step">
+                <h4>2. Forward Pass</h4>
+                <ul>
+                    <li>Compute token embeddings and add positional embeddings</li>
+                    <li>Process through all transformer layers</li>
+                    <li>Extract the [CLS] token embedding</li>
+                    <li>Pass through the classification layer</li>
+                </ul>
+            </div>
+            
+            <div class="process-step">
+                <h4>3. Output</h4>
+                <ul>
+                    <li>Apply softmax to get probabilities for each sentiment class</li>
+                    <li>Select the class with the highest probability as the predicted sentiment</li>
+                </ul>
+                <div class="math-formula">
+                    $$\text{Predicted Class} = \arg\max_c P(c | \text{input})$$
+                </div>
+            </div>
+        </section>
+
+        <section id="example">
+            <h2>6. Example Analysis</h2>
+            <p>Let's walk through how RoBERTa would process a text for sentiment analysis:</p>
+            
+            <div class="process-step">
+                <h4>Input Text:</h4>
+                <div class="math-formula">
+                    "The movie was incredibly boring, but the acting saved it."
+                </div>
+                
+                <h4>1. Tokenization:</h4>
+                <pre><code>[CLS], "The", "movie", "was", "incredibly", "boring", ",", "but", "the", "acting", "saved", "it", ".", [SEP]</code></pre>
+                
+                <h4>2. Self-Attention Example:</h4>
+                <p>In the self-attention layers:</p>
+                <ul>
+                    <li>The token "boring" would strongly attend to "incredibly" (amplifying the negative sentiment)</li>
+                    <li>"But" creates a contrast, shifting focus to the positive phrase "acting saved it"</li>
+                    <li>The [CLS] token attends to key sentiment-bearing words in the sequence</li>
+                </ul>
+                
+                <h4>3. Classification Head Output:</h4>
+                <p>The [CLS] embedding captures the overall sentiment, which the classification layer might process as:</p>
+                <div class="math-formula">
+                    Logits: [-1.2, 0.3, 4.1] (negative, neutral, positive)<br>
+                    Softmax: [0.02, 0.08, 0.90]<br>
+                    <br>
+                    Predicted sentiment: <strong>Positive</strong> (90% confidence)
+                </div>
+                <p>This example demonstrates RoBERTa's ability to understand contextual nuances like the contrast introduced by "but", which shifts the overall sentiment despite the presence of negative words.</p>
+            </div>
+            
+            <div class="info-box">
+                <h3>Implementation Note</h3>
+                <p>In Python, RoBERTa for sentiment analysis can be implemented using the Hugging Face Transformers library:</p>
+                <pre><code>from transformers import RobertaTokenizer, RobertaForSequenceClassification
+import torch
+
+# Load pre-trained model and tokenizer
+tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
+model = RobertaForSequenceClassification.from_pretrained('roberta-base', num_labels=3)
+
+# Fine-tune on sentiment data
+# (Training code would go here)
+
+# Inference
+text = "The movie was incredibly boring, but the acting saved it."
+inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=512)
+outputs = model(**inputs)
+probabilities = torch.nn.functional.softmax(outputs.logits, dim=-1)
+
+# Get predicted class
+predicted_class = torch.argmax(probabilities, dim=-1).item()
+sentiment_labels = ['negative', 'neutral', 'positive']
+predicted_sentiment = sentiment_labels[predicted_class]
+confidence = probabilities[0][predicted_class].item()
+
+print(f"Sentiment: {predicted_sentiment} (Confidence: {confidence:.2f})")</code></pre>
+            </div>
+        </section>
+
+        <section id="comparison">
+            <h2>7. Comparison with VADER</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>VADER</th>
+                        <th>RoBERTa</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Approach</td>
+                        <td>Rule-based, lexicon-driven</td>
+                        <td>Transformer-based, data-driven</td>
+                    </tr>
+                    <tr>
+                        <td>Context Handling</td>
+                        <td>Heuristic rules (e.g., "but")</td>
+                        <td>Self-attention captures long-range context</td>
+                    </tr>
+                    <tr>
+                        <td>Training</td>
+                        <td>No training required</td>
+                        <td>Pre-training + task-specific fine-tuning</td>
+                    </tr>
+                    <tr>
+                        <td>Slang/Emojis</td>
+                        <td>Explicitly coded in lexicon</td>
+                        <td>Learns from data (if present in training)</td>
+                    </tr>
+                    <tr>
+                        <td>Interpretability</td>
+                        <td>High (transparent rules)</td>
+                        <td>Low (black-box model)</td>
+                    </tr>
+                    <tr>
+                        <td>Computational Cost</td>
+                        <td>Very low</td>
+                        <td>High (requires GPU for efficient inference)</td>
+                    </tr>
+                    <tr>
+                        <td>Performance on Long Texts</td>
+                        <td>Limited</td>
+                        <td>Excellent (up to max sequence length)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="limitations">
+            <h2>Strengths and Limitations</h2>
+            
+            <div class="process-step">
+                <h4>Key Strengths</h4>
+                <ul>
+                    <li>Deep contextual understanding captures nuances like sarcasm and implied sentiment</li>
+                    <li>Powerful transfer learning capabilities</li>
+                    <li>Handles complex, long-form text effectively</li>
+                    <li>Can be fine-tuned for domain-specific sentiment analysis</li>
+                    <li>State-of-the-art performance on sentiment benchmarks</li>
+                </ul>
+            </div>
+            
+            <div class="process-step">
+                <h4>Limitations</h4>
+                <ul>
+                    <li>Computational cost is high, requiring GPUs for efficient inference</li>
+                    <li>Large amounts of labeled data needed for optimal fine-tuning</li>
+                    <li>Black-box nature makes it difficult to interpret decisions</li>
+                    <li>Maximum sequence length constraints (typically 512 tokens)</li>
+                    <li>Model size makes deployment on edge devices challenging</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="conclusion">
+            <h2>Conclusion</h2>
+            <p>RoBERTa represents a significant advancement in sentiment analysis, leveraging deep transformer architectures to capture complex contextual relationships in text. Its self-attention mechanism allows it to understand nuanced sentiment expressions that rule-based systems often miss.</p>
+            
+            <p>While RoBERTa requires more computational resources than lexicon-based approaches like <a href="vader.html">VADER</a>, its superior performance on complex texts, especially longer documents with subtle sentiment cues, makes it the preferred choice for many production applications where accuracy is paramount.</p>
+            
+            <p>The trade-off between computational efficiency and model performance is a key consideration when choosing between traditional approaches like VADER and transformer-based models like RoBERTa. As computational resources become more accessible, transformer models will likely continue to dominate in scenarios where nuanced understanding of text is critical.</p>
+            
+            <p><a href="index.html" class="btn">Back to Home</a></p>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 NLP Sentiment Analysis Models. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
