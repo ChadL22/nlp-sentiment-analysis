@@ -1,7 +1,8 @@
-Fix redundancies in index.html and add notebook templates
+Improve page structure and remove redundancy
 
-- Improved Introduction to Sentiment Analysis section to reduce redundancy
-- Updated VADER and RoBERTa sections to focus on mathematical foundations
-- Created template Jupyter notebooks for both models
-- Updated notebooks section to link to the actual notebook files
-- Added clear TODOs and structure to notebooks for future development
+- Eliminated redundant model descriptions between introduction and dedicated sections
+- Combined VADER and RoBERTa sections into a single side-by-side model comparison section
+- Updated navigation to match new structure
+- Enhanced CSS for better visual presentation of model comparison
+- Maintained all mathematical content while reducing repetition
+- Fixed notebook links to point to actual template files

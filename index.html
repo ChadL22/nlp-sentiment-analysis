@@ -24,10 +24,10 @@
             <nav>
                 <ul>
                     <li><a href="#introduction">Introduction</a></li>
-                    <li><a href="#vader">VADER</a></li>
-                    <li><a href="#roberta">RoBERTa</a></li>
+                    <li><a href="#models">Models</a></li>
                     <li><a href="#comparison">Comparison</a></li>
                     <li><a href="#resources">Resources</a></li>
+                    <li><a href="#notebooks">Notebooks</a></li>
                 </ul>
             </nav>
         </div>
@@ -47,61 +47,44 @@
         <section id="introduction">
             <h2>Introduction to Sentiment Analysis</h2>
             <p>Sentiment analysis is the computational process of determining the emotional tone behind text, providing insights into attitudes, opinions, and emotions. Modern approaches to sentiment analysis vary widely in their methodology, complexity, and application focus.</p>
-            <p>This project explores two fundamentally different approaches to sentiment analysis through a mathematical lens:</p>
-            
-            <div class="model-cards">
-                <div class="model-card">
-                    <h3>VADER</h3>
-                    <p>A rule-based approach utilizing lexical scoring and heuristics</p>
-                    <div class="button-group">
-                        <a href="vader-overview.html" class="btn">Learn More</a>
-                        <a href="vader.html" class="btn">Detailed Mathematics</a>
-                    </div>
-                </div>
-                <div class="model-card">
-                    <h3>RoBERTa</h3>
-                    <p>A neural approach leveraging transformer architecture and contextual embeddings</p>
-                    <div class="button-group">
-                        <a href="roberta-overview.html" class="btn">Learn More</a>
-                        <a href="roberta.html" class="btn">Detailed Mathematics</a>
-                    </div>
-                </div>
-            </div>
+            <p>This project explores two fundamentally different approaches through a mathematical lens:</p>
         </section>
 
-        <section id="vader">
-            <h2>VADER: Valence Aware Dictionary and sEntiment Reasoner</h2>
-            <p>VADER represents a deterministic approach to sentiment analysis through a carefully crafted lexicon combined with linguistic rules that capture common expression patterns.</p>
-            
-            <h3>Mathematical Foundation</h3>
-            <ul>
-                <li>Word-level polarity scoring via manually labeled lexicon</li>
-                <li>Rule-based intensifiers, negations, and contrastive conjunctions</li>
-                <li>Heuristic normalization functions for final sentiment scores</li>
-                <li>Statistical validation against human raters</li>
-            </ul>
-            
-            <div class="button-group">
-                <a href="vader-overview.html" class="btn">Practical Overview</a>
-                <a href="vader.html" class="btn">Mathematical Analysis</a>
+        <section id="models" class="model-comparison">
+            <div class="model-section" id="vader">
+                <h2>VADER: Valence Aware Dictionary and sEntiment Reasoner</h2>
+                <p>A deterministic approach to sentiment analysis through a carefully crafted lexicon combined with linguistic rules that capture common expression patterns.</p>
+                
+                <h3>Mathematical Foundation</h3>
+                <ul>
+                    <li>Word-level polarity scoring via manually labeled lexicon</li>
+                    <li>Rule-based intensifiers, negations, and contrastive conjunctions</li>
+                    <li>Heuristic normalization functions for final sentiment scores</li>
+                    <li>Statistical validation against human raters</li>
+                </ul>
+                
+                <div class="button-group">
+                    <a href="vader-overview.html" class="btn">Practical Overview</a>
+                    <a href="vader.html" class="btn">Mathematical Analysis</a>
+                </div>
             </div>
-        </section>
 
-        <section id="roberta">
-            <h2>RoBERTa: Robustly Optimized BERT Approach</h2>
-            <p>RoBERTa represents the neural network paradigm in NLP, utilizing self-attention mechanisms and transfer learning to capture complex linguistic patterns and contextual relationships.</p>
-            
-            <h3>Mathematical Foundation</h3>
-            <ul>
-                <li>Multi-head self-attention matrices for contextual representation</li>
-                <li>Layer normalization and feed-forward transformations</li>
-                <li>Subword tokenization with learned embedding spaces</li>
-                <li>Classification head fine-tuning with cross-entropy loss</li>
-            </ul>
-            
-            <div class="button-group">
-                <a href="roberta-overview.html" class="btn">Practical Overview</a>
-                <a href="roberta.html" class="btn">Mathematical Analysis</a>
+            <div class="model-section" id="roberta">
+                <h2>RoBERTa: Robustly Optimized BERT Approach</h2>
+                <p>A neural network approach utilizing self-attention mechanisms and transfer learning to capture complex linguistic patterns and contextual relationships.</p>
+                
+                <h3>Mathematical Foundation</h3>
+                <ul>
+                    <li>Multi-head self-attention matrices for contextual representation</li>
+                    <li>Layer normalization and feed-forward transformations</li>
+                    <li>Subword tokenization with learned embedding spaces</li>
+                    <li>Classification head fine-tuning with cross-entropy loss</li>
+                </ul>
+                
+                <div class="button-group">
+                    <a href="roberta-overview.html" class="btn">Practical Overview</a>
+                    <a href="roberta.html" class="btn">Mathematical Analysis</a>
+                </div>
             </div>
         </section>
 
