@@ -105,6 +105,17 @@ section {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
+/* Project description */
+#project-about {
+    margin-bottom: 2rem;
+}
+
+#project-about .info-box {
+    background-color: #f0f7ff;
+    border-left: 4px solid #3498db;
+    padding: 1.5rem;
+}
+
 /* Model cards */
 .model-cards {
     display: flex;
@@ -131,6 +142,14 @@ section {
     color: #3498db;
 }
 
+/* Button group */
+.button-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
 /* Buttons */
 .btn {
     display: inline-block;
@@ -138,7 +157,7 @@ section {
     color: white;
     padding: 0.6rem 1.2rem;
     border-radius: 4px;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
     transition: background-color 0.3s;
 }
 
@@ -261,25 +280,14 @@ footer {
         padding: 0.8rem;
         font-size: 0.9rem;
     }
+    
+    .button-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
 
-/* Diagram and visualization styles */
-.diagram {
-    max-width: 100%;
-    height: auto;
-    margin: 2rem 0;
-    display: block;
-}
-
-/* Image captions */
-.image-caption {
-    text-align: center;
-    font-style: italic;
-    color: #7f8c8d;
-    margin-top: 0.5rem;
-}
-
-/* Emphasized info */
+/* Info and warning boxes */
 .info-box {
     background-color: #e8f4fa;
     border-left: 4px solid #3498db;
@@ -300,12 +308,18 @@ footer {
     color: #3498db;
 }
 
-/* Algorithm pseudocode */
-.pseudocode {
-    font-family: 'Courier New', Courier, monospace;
-    background-color: #f5f7fa;
-    padding: 1.5rem;
-    margin: 1.5rem 0;
-    border-radius: 4px;
-    white-space: pre-wrap;
+/* Image captions */
+.image-caption {
+    text-align: center;
+    font-style: italic;
+    color: #7f8c8d;
+    margin-top: 0.5rem;
+}
+
+/* Diagram and visualization styles */
+.diagram {
+    max-width: 100%;
+    height: auto;
+    margin: 2rem 0;
+    display: block;
 }

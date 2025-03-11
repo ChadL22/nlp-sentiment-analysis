@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoBERTa Overview - NLP Sentiment Analysis</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>RoBERTa: A Practical Overview</h1>
+            <p class="subtitle">Understanding transformer-based sentiment analysis</p>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="#what-is-roberta">What is RoBERTa?</a></li>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="#use-cases">Use Cases</a></li>
+                    <li><a href="#examples">Examples</a></li>
+                    <li><a href="roberta.html">Detailed Analysis</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="what-is-roberta">
+            <h2>What is RoBERTa?</h2>
+            <p>RoBERTa (Robustly Optimized BERT Approach) is a transformer-based language model that builds upon BERT (Bidirectional Encoder Representations from Transformers). It's designed to understand context in text by learning relationships between words and phrases through a sophisticated neural network architecture.</p>
+            
+            <div class="info-box">
+                <h3>Key Features</h3>
+                <ul>
+                    <li><strong>Contextual Understanding</strong> - Captures subtle nuances and relationships between words</li>
+                    <li><strong>Pre-trained Knowledge</strong> - Leverages knowledge from massive text corpora</li>
+                    <li><strong>Fine-tunable</strong> - Can be adapted to specific sentiment analysis tasks</li>
+                    <li><strong>Powerful Accuracy</strong> - State-of-the-art performance on complex text</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="how-it-works">
+            <h2>How RoBERTa Works</h2>
+            <p>RoBERTa processes text using a sophisticated mechanism called self-attention, which allows it to weigh the importance of different words when determining the meaning of each word in context.</p>
+            
+            <div class="process-step">
+                <h4>1. Tokenization</h4>
+                <p>Text is broken down into tokens (words or subwords) that are then converted to numerical IDs the model can process.</p>
+                <p><strong>Example:</strong> "unhappiness" might be split into tokens "un" + "happiness"</p>
+            </div>
+            
+            <div class="process-step">
+                <h4>2. Self-Attention</h4>
+                <p>The model calculates attention scores between all tokens, allowing each word to "pay attention" to all other words in the sentence.</p>
+                <p>This is how RoBERTa understands context - words like "bank" can mean different things depending on surrounding words ("river bank" vs "bank account").</p>
+            </div>
+            
+            <div class="process-step">
+                <h4>3. Multiple Layers</h4>
+                <p>Information flows through multiple transformer layers, each refining the understanding of the text:</p>
+                <ul>
+                    <li><strong>Early layers</strong> - Capture basic syntax and relationships</li>
+                    <li><strong>Middle layers</strong> - Process semantic meanings</li>
+                    <li><strong>Later layers</strong> - Develop nuanced contextual representations</li>
+                </ul>
+            </div>
+            
+            <div class="process-step">
+                <h4>4. Classification</h4>
+                <p>For sentiment analysis, a special [CLS] token collects information from the entire sequence and is used to make the final sentiment prediction.</p>
+                <p>The model outputs probabilities for each sentiment class (e.g., positive, neutral, negative).</p>
+            </div>
+        </section>
+
+        <section id="use-cases">
+            <h2>Common Use Cases</h2>
+            <div class="model-cards">
+                <div class="model-card">
+                    <h3>Long-form Content Analysis</h3>
+                    <p>Analyze sentiment in articles, essays, and long reviews where context is crucial.</p>
+                </div>
+                <div class="model-card">
+                    <h3>Complex Sentiment Detection</h3>
+                    <p>Identify subtle sentiments like sarcasm, implied criticism, or mixed feelings.</p>
+                </div>
+                <div class="model-card">
+                    <h3>Multi-lingual Analysis</h3>
+                    <p>Process sentiment across multiple languages with multilingual variants.</p>
+                </div>
+                <div class="model-card">
+                    <h3>Industry-Specific Sentiment</h3>
+                    <p>Fine-tune for domain-specific language in healthcare, finance, or legal texts.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="examples">
+            <h2>RoBERTa in Action</h2>
+            <p>Here are some examples of how RoBERTa handles sentiment in different contexts:</p>
+            
+            <div class="process-step">
+                <h4>Example 1: Contextual Nuance</h4>
+                <p>Text: "The service was slow, but the staff was incredibly friendly and helpful."</p>
+                <p>Prediction: Positive (72% confidence)</p>
+                <p><strong>Insight:</strong> RoBERTa understands that the positive attributes of friendliness outweigh the slowness in this context.</p>
+            </div>
+            
+            <div class="process-step">
+                <h4>Example 2: Contrasting Statements</h4>
+                <p>Text: "The film had amazing cinematography but a terrible plot."</p>
+                <p>Prediction: Neutral (65% confidence)</p>
+                <p><strong>Insight:</strong> The model balances strong positive and negative aspects to arrive at a neutral overall sentiment.</p>
+            </div>
+            
+            <div class="process-step">
+                <h4>Example 3: Subtle Implications</h4>
+                <p>Text: "I wouldn't recommend this product to my worst enemy."</p>
+                <p>Prediction: Negative (91% confidence)</p>
+                <p><strong>Insight:</strong> RoBERTa captures the implied strong negative sentiment despite no explicitly negative words.</p>
+            </div>
+            
+            <div class="process-step">
+                <h4>Example 4: Complex Context</h4>
+                <p>Text: "For the price, I expected much more than what was delivered."</p>
+                <p>Prediction: Negative (78% confidence)</p>
+                <p><strong>Insight:</strong> The model understands the implied disappointment in the value proposition.</p>
+            </div>
+        </section>
+
+        <section id="limitations">
+            <h2>Practical Considerations</h2>
+            <div class="warning-box">
+                <h3>Key Limitations</h3>
+                <ul>
+                    <li><strong>Computational Requirements</strong> - Needs significantly more resources than lexicon-based models</li>
+                    <li><strong>Training Data Dependency</strong> - Performance depends on the quality and relevance of training data</li>
+                    <li><strong>"Black Box" Nature</strong> - Less interpretable than rule-based models like VADER</li>
+                    <li><strong>Sequence Length Limitations</strong> - Most variants have a maximum input length (typically 512 tokens)</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="next-steps">
+            <h2>Explore Further</h2>
+            <div class="info-box">
+                <p>Ready to dive deeper into how RoBERTa works mathematically?</p>
+                <a href="roberta.html" class="btn">View Detailed Mathematical Analysis</a>
+                <p>Or see how RoBERTa compares to lexicon-based models:</p>
+                <a href="index.html#comparison" class="btn">View Model Comparison</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 NLP Sentiment Analysis Models. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

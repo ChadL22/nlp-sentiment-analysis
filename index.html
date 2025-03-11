@@ -34,6 +34,16 @@
     </header>
 
     <main class="container">
+        <section id="project-about">
+            <div class="info-box">
+                <h3>About This Project</h3>
+                <p>This project started when a friend asked me to explain how sentiment analysis models work mathematically. Looking online, I couldn't find resources that clearly explained the mathematical foundations behind popular models like VADER and BERT/RoBERTa in an accessible way.</p>
+                <p>Most tutorials I found focused on implementation or API usage, while academic papers often contained dense mathematics without clear connections to the actual code. There seemed to be a gap between practical guides and theoretical explanations.</p>
+                <p>This repository is my attempt to bridge that gap by exploring both the practical applications and mathematical underpinnings of sentiment analysis models.</p>
+                <p>This is very much a work in progress, and I'm learning along the way. I hope others who are curious about the mathematical underpinnings of these models might find this helpful in their own learning journey.</p>
+            </div>
+        </section>
+        
         <section id="introduction">
             <h2>Introduction to Sentiment Analysis</h2>
             <p>Sentiment analysis is the computational process of determining the emotional tone behind a series of words, used to gain an understanding of attitudes, opinions, and emotions expressed in text. This page focuses on the mathematical foundations and internal processes of two popular sentiment analysis models:</p>
@@ -42,12 +52,18 @@
                 <div class="model-card">
                     <h3>VADER</h3>
                     <p>A lexicon and rule-based sentiment analysis tool specifically optimized for social media.</p>
-                    <a href="vader.html" class="btn">Learn More</a>
+                    <div class="button-group">
+                        <a href="vader-overview.html" class="btn">Learn More</a>
+                        <a href="vader.html" class="btn">Detailed Mathematics</a>
+                    </div>
                 </div>
                 <div class="model-card">
                     <h3>RoBERTa</h3>
                     <p>A transformer-based deep learning model that excels at contextual understanding.</p>
-                    <a href="roberta.html" class="btn">Learn More</a>
+                    <div class="button-group">
+                        <a href="roberta-overview.html" class="btn">Learn More</a>
+                        <a href="roberta.html" class="btn">Detailed Mathematics</a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -64,7 +80,10 @@
                 <li>Computationally efficient</li>
             </ul>
             
-            <p><a href="vader.html" class="btn">Detailed VADER Analysis</a></p>
+            <div class="button-group">
+                <a href="vader-overview.html" class="btn">Practical Overview</a>
+                <a href="vader.html" class="btn">Mathematical Analysis</a>
+            </div>
         </section>
 
         <section id="roberta">
@@ -79,7 +98,10 @@
                 <li>Fine-tunable for specific tasks</li>
             </ul>
             
-            <p><a href="roberta.html" class="btn">Detailed RoBERTa Analysis</a></p>
+            <div class="button-group">
+                <a href="roberta-overview.html" class="btn">Practical Overview</a>
+                <a href="roberta.html" class="btn">Mathematical Analysis</a>
+            </div>
         </section>
 
         <section id="comparison">
@@ -117,6 +139,16 @@
                         <td>Interpretability</td>
                         <td>High (transparent rules)</td>
                         <td>Low (black-box model)</td>
+                    </tr>
+                    <tr>
+                        <td>Mathematical Complexity</td>
+                        <td>Low (weighted sums with rules)</td>
+                        <td>High (self-attention, neural networks)</td>
+                    </tr>
+                    <tr>
+                        <td>Computational Cost</td>
+                        <td>Very low</td>
+                        <td>High (requires GPU for efficiency)</td>
                     </tr>
                 </tbody>
             </table>
@@ -169,6 +201,24 @@
                     </ul>
                 </li>
             </ul>
+        </section>
+
+        <section id="notebooks">
+            <h2>Interactive Notebooks</h2>
+            <p>Explore the practical implementation of these models through our Jupyter notebooks:</p>
+            
+            <div class="model-cards">
+                <div class="model-card">
+                    <h3>VADER Notebook</h3>
+                    <p>Explore the lexicon and rule-based sentiment analysis with hands-on examples and visualization of the scoring process.</p>
+                    <a href="https://github.com/your-username/nlp-sentiment-analysis/blob/main/notebooks/vader_sentiment_analysis.ipynb" class="btn" target="_blank">View Notebook</a>
+                </div>
+                <div class="model-card">
+                    <h3>BERT/RoBERTa Notebook</h3>
+                    <p>Implement transformer-based sentiment analysis and visualize attention patterns and embedding spaces.</p>
+                    <a href="https://github.com/your-username/nlp-sentiment-analysis/blob/main/notebooks/bert_sentiment_analysis.ipynb" class="btn" target="_blank">View Notebook</a>
+                </div>
+            </div>
         </section>
     </main>
 
