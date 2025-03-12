@@ -4,568 +4,334 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VADER vs. BERT Sentiment Analysis</title>
-    <!-- Only using Chart.js - no sentiment libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="css/styles.css">
+    <!-- TensorFlow.js and required models -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/toxicity"></script>
+    <!-- VADER-like sentiment analysis library -->
+    <script src="https://cdn.jsdelivr.net/npm/sentiment"></script>
     <style>
-        .analyzer-container {
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background-color: white;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        
+        .container {
+            background-color: #f9f9f9;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
         textarea {
             width: 100%;
-            height: 100px;
-            padding: 10px;
+            height: 120px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            resize: vertical;
             font-family: inherit;
-            font-size: 1rem;
-            margin-bottom: 20px;
         }
         
-        .button-primary {
+        button {
             background-color: #3498db;
             color: white;
-            padding: 10px 20px;
             border: none;
+            padding: 12px 24px;
             border-radius: 4px;
-            font-size: 16px;
             cursor: pointer;
+            font-size: 16px;
             transition: background-color 0.3s;
         }
         
-        .button-primary:hover {
+        button:hover {
             background-color: #2980b9;
         }
         
-        .results-container {
-            margin-top: 30px;
-            display: none;
+        .results {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         
-        .model-results {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
+        .result-item {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: center;
         }
         
-        .model-card {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-        }
-        
-        .model-card h3 {
-            color: #3498db;
-            margin-top: 0;
-        }
-        
-        .score-container {
-            text-align: center;
-            margin: 20px 0;
-        }
-        
-        .score-value {
-            font-size: 2.5rem;
+        .result-label {
+            width: 150px;
             font-weight: bold;
         }
         
-        .score-vader {
-            color: #2980b9;
+        .score-bar {
+            flex-grow: 1;
+            height: 30px;
+            background-color: #ecf0f1;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
         }
         
-        .score-bert {
-            color: #8e44ad;
+        .score-fill {
+            height: 100%;
+            transition: width 0.5s ease-out;
         }
         
-        .sentiment-positive {
-            color: #27ae60;
+        .score-value {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+            color: #333;
         }
         
-        .sentiment-neutral {
-            color: #f39c12;
-        }
-        
-        .sentiment-negative {
-            color: #e74c3c;
-        }
-        
-        .chart-container {
-            margin-top: 30px;
-            height: 300px;
-        }
-        
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        
-        .comparison-table th, .comparison-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e1e1e1;
-        }
-        
-        .comparison-table th {
-            background-color: #f1f4f7;
-        }
-        
-        .example-texts {
-            margin-top: 30px;
+        .score-label {
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #7f8c8d;
         }
         
-        .example-text {
-            background-color: #f1f4f7;
-            padding: 8px 15px;
-            border-radius: 20px;
+        .loading {
+            text-align: center;
+            margin: 20px 0;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+        
+        .comparison {
+            display: flex;
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        
+        .comparison div {
+            flex: 1;
+            padding: 0 10px;
+        }
+        
+        .positive { color: #27ae60; }
+        .negative { color: #e74c3c; }
+        .neutral { color: #f39c12; }
+        
+        #examples {
+            margin-top: 30px;
+        }
+        
+        .example-button {
+            background-color: #eee;
+            border: none;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            font-size: 14px;
         }
         
-        .example-text:hover {
-            background-color: #e1e7ed;
+        .example-button:hover {
+            background-color: #ddd;
         }
         
-        @media (max-width: 768px) {
-            .model-results {
-                grid-template-columns: 1fr;
-            }
+        #modelStatus {
+            font-size: 14px;
+            font-style: italic;
+            color: #7f8c8d;
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>VADER vs. BERT Sentiment Analysis</h1>
-            <p class="subtitle">Compare how rule-based and neural approaches analyze sentiment</p>
+    <div class="container">
+        <h1>VADER vs. BERT Sentiment Analysis</h1>
+        <p>Compare how VADER (rule-based) and BERT (neural network) analyze sentiment in real-time.</p>
+        <div id="modelStatus">Loading models... Please wait.</div>
+        
+        <div>
+            <h3>Enter text to analyze:</h3>
+            <textarea id="textInput" placeholder="Type or paste text here to analyze its sentiment..."></textarea>
+            <button id="analyzeButton" onclick="analyzeSentiment()" disabled>Analyze Sentiment</button>
         </div>
-    </header>
-
-    <main class="container">
-        <div class="analyzer-container">
-            <h2>Interactive Sentiment Analyzer</h2>
-            <p>Enter a text to analyze its sentiment using simulated VADER (rule-based) and BERT (neural network) models:</p>
+        
+        <div id="examples">
+            <h3>Try these examples:</h3>
+            <button class="example-button" onclick="setExampleText('I love this product! It works amazingly well.')">Positive Example</button>
+            <button class="example-button" onclick="setExampleText('This is okay, nothing special.')">Neutral Example</button>
+            <button class="example-button" onclick="setExampleText('I hate this. It\'s the worst purchase I\'ve ever made.')">Negative Example</button>
+            <button class="example-button" onclick="setExampleText('The food was delicious but the service was terrible.')">Mixed Example</button>
+        </div>
+        
+        <div id="output" class="results" style="display: none;">
+            <h2>Analysis Results</h2>
             
-            <textarea id="textInput" placeholder="Type or paste text here..."></textarea>
-            
-            <div class="example-texts">
-                <span class="example-text" onclick="useExampleText(this)">I absolutely loved this movie!</span>
-                <span class="example-text" onclick="useExampleText(this)">The food was terrible and the service was slow.</span>
-                <span class="example-text" onclick="useExampleText(this)">The product works as expected.</span>
-                <span class="example-text" onclick="useExampleText(this)">I was not unhappy with the results.</span>
+            <div class="result-item">
+                <div class="result-label">VADER:</div>
+                <div class="score-bar">
+                    <div id="vaderBar" class="score-fill" style="width: 50%; background-color: #3498db;"></div>
+                    <div id="vaderScore" class="score-value">0</div>
+                </div>
+            </div>
+            <div class="score-label">
+                <span>Negative</span>
+                <span>Neutral</span>
+                <span>Positive</span>
             </div>
             
-            <div style="text-align: center; margin-top: 20px;">
-                <button class="button-primary" onclick="analyzeSentiment()">Analyze Sentiment</button>
+            <div class="result-item">
+                <div class="result-label">BERT:</div>
+                <div class="score-bar">
+                    <div id="bertBar" class="score-fill" style="width: 50%; background-color: #9b59b6;"></div>
+                    <div id="bertScore" class="score-value">0</div>
+                </div>
+            </div>
+            <div class="score-label">
+                <span>Negative</span>
+                <span>Neutral</span>
+                <span>Positive</span>
             </div>
             
-            <div id="results" class="results-container">
-                <h3>Analysis Results</h3>
-                
-                <div class="model-results">
-                    <div class="model-card">
-                        <h3>VADER</h3>
-                        <p>Rule-based approach with lexicon and heuristic rules</p>
-                        
-                        <div class="score-container">
-                            <div id="vaderScoreValue" class="score-value score-vader">0.0</div>
-                            <div id="vaderSentiment">Neutral</div>
-                        </div>
-                        
-                        <div>
-                            <table class="comparison-table">
-                                <tr>
-                                    <th>Component</th>
-                                    <th>Score</th>
-                                </tr>
-                                <tr>
-                                    <td>Positive</td>
-                                    <td id="vaderPositive">0.0</td>
-                                </tr>
-                                <tr>
-                                    <td>Neutral</td>
-                                    <td id="vaderNeutral">0.0</td>
-                                </tr>
-                                <tr>
-                                    <td>Negative</td>
-                                    <td id="vaderNegative">0.0</td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <div class="model-card">
-                        <h3>BERT</h3>
-                        <p>Neural network approach with contextual understanding</p>
-                        
-                        <div class="score-container">
-                            <div id="bertScoreValue" class="score-value score-bert">0.0</div>
-                            <div id="bertSentiment">Neutral</div>
-                        </div>
-                        
-                        <div>
-                            <table class="comparison-table">
-                                <tr>
-                                    <th>Prediction</th>
-                                    <th>Confidence</th>
-                                </tr>
-                                <tr>
-                                    <td>Positive</td>
-                                    <td id="bertPositive">0.0%</td>
-                                </tr>
-                                <tr>
-                                    <td>Negative</td>
-                                    <td id="bertNegative">0.0%</td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
+            <div class="comparison">
+                <div>
+                    <h3>VADER Analysis</h3>
+                    <p>Rule-based approach that uses a sentiment lexicon.</p>
+                    <p>Sentiment: <span id="vaderSentiment" class="neutral">Neutral</span></p>
+                    <p>Explanation: Uses word polarity, punctuation, capitalization, and modifiers.</p>
                 </div>
-                
-                <div class="chart-container">
-                    <canvas id="comparisonChart"></canvas>
-                </div>
-                
-                <div class="model-card" style="margin-top: 30px;">
-                    <h3>Key Differences in Analysis</h3>
-                    <p id="analysisExplanation">Enter text above to see how VADER and BERT analyze sentiment differently.</p>
+                <div>
+                    <h3>BERT Analysis</h3>
+                    <p>Neural network trained on vast amounts of text.</p>
+                    <p>Sentiment: <span id="bertSentiment" class="neutral">Neutral</span></p>
+                    <p>Explanation: Understands context and nuanced language patterns.</p>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
     <script>
-        let comparisonChart = null;
+        let toxicityModel;
         
-        // Simplified VADER lexicon with common words and their sentiment scores
-        const vaderLexicon = {
-            'good': 1.9, 'great': 3.1, 'excellent': 3.2, 'amazing': 3.3, 'wonderful': 2.9, 
-            'love': 2.7, 'happy': 2.1, 'best': 3.0, 'perfect': 3.3, 'awesome': 3.3, 'nice': 1.8,
-            'bad': -2.5, 'terrible': -3.1, 'awful': -3.0, 'horrible': -3.2, 'hate': -2.9, 
-            'worst': -3.1, 'poor': -2.0, 'disappointed': -2.4, 'disappointing': -2.2, 'slow': -1.2,
-            'not': -0.5, "n't": -0.5, 'no': -0.7, 'never': -1.3,
-            'very': 0.3, 'really': 0.3, 'extremely': 0.5, 'absolutely': 0.5,
-            'but': -0.2
-        };
+        // Load the model when the page loads
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                document.getElementById('modelStatus').innerText = 'Loading BERT model... (this may take a moment)';
+                // Load the toxicity model which we'll use as our BERT model
+                toxicityModel = await toxicity.load(0.5);
+                document.getElementById('modelStatus').innerText = 'Models loaded successfully!';
+                document.getElementById('analyzeButton').disabled = false;
+            } catch (error) {
+                document.getElementById('modelStatus').innerText = 'Error loading model: ' + error.message;
+                console.error('Error loading model:', error);
+            }
+        });
         
-        function useExampleText(element) {
-            document.getElementById('textInput').value = element.textContent;
+        // Set example text to the input field
+        function setExampleText(text) {
+            document.getElementById('textInput').value = text;
+            if (!document.getElementById('analyzeButton').disabled) {
+                analyzeSentiment();
+            }
         }
         
-        function analyzeSentiment() {
-            let text = document.getElementById("textInput").value;
+        // Map a value from -1 to 1 to a percentage (0 to 100)
+        function mapToPercentage(value) {
+            return ((value + 1) / 2) * 100;
+        }
+        
+        // Determine sentiment category based on score
+        function getSentimentCategory(score) {
+            if (score > 0.2) return { text: "Positive", class: "positive" };
+            if (score < -0.2) return { text: "Negative", class: "negative" };
+            return { text: "Neutral", class: "neutral" };
+        }
+        
+        // Update the visual bar
+        function updateBar(barId, scoreId, value, normalized) {
+            const percentage = normalized ? value : mapToPercentage(value);
+            document.getElementById(barId).style.width = percentage + "%";
             
-            if (text.trim() === "") {
+            // Adjust color based on sentiment
+            let color;
+            if (percentage > 60) {
+                color = "#27ae60"; // Positive - green
+            } else if (percentage < 40) {
+                color = "#e74c3c"; // Negative - red
+            } else {
+                color = "#f39c12"; // Neutral - amber
+            }
+            
+            document.getElementById(barId).style.backgroundColor = color;
+            document.getElementById(scoreId).innerText = normalized ? 
+                value.toFixed(2) : value.toFixed(2);
+        }
+        
+        // Update sentiment text
+        function updateSentiment(elementId, category) {
+            const element = document.getElementById(elementId);
+            element.innerText = category.text;
+            element.className = category.class;
+        }
+        
+        // Main analysis function
+        async function analyzeSentiment() {
+            const text = document.getElementById('textInput').value.trim();
+            const outputDiv = document.getElementById('output');
+            
+            if (text === "") {
                 alert("Please enter some text to analyze.");
                 return;
             }
             
+            document.getElementById('modelStatus').innerText = 'Analyzing...';
+            document.getElementById('analyzeButton').disabled = true;
+            outputDiv.style.display = 'none';
+            
             try {
-                // Analyze with simulated VADER
-                const vaderResults = simulateVaderAnalysis(text);
-                const vaderScore = vaderResults.score;
-                const vaderPositive = vaderResults.positive;
-                const vaderNeutral = vaderResults.neutral;
-                const vaderNegative = vaderResults.negative;
+                // VADER (Rule-Based) Analysis
+                const Sentiment = window.sentiment;
+                const vaderAnalyzer = new Sentiment();
+                const vaderResult = vaderAnalyzer.analyze(text);
+                const vaderScore = vaderResult.comparative; // Range is typically -1 to 1
                 
-                // Analyze with simulated BERT
-                const bertResults = simulateBertAnalysis(text);
-                const bertScore = bertResults.score;
-                const bertPositive = bertResults.positive;
-                const bertNegative = bertResults.negative;
+                // BERT Analysis using ToxicityClassifier
+                const predictions = await toxicityModel.classify(text);
+                // Extract toxicity score and convert to sentiment (inverted)
+                const toxicityScore = predictions[0].results[0].probabilities[1]; // Probability of being toxic
+                const bertScore = -1 * (toxicityScore * 2 - 1); // Convert 0-1 to -1 to 1 and invert (toxic means negative)
                 
-                // Determine sentiment labels
-                let vaderSentiment = getSentimentLabel(vaderScore);
-                let bertSentiment = getSentimentLabel(bertScore);
+                // Update UI
+                updateBar('vaderBar', 'vaderScore', vaderScore, false);
+                updateBar('bertBar', 'bertScore', bertScore, false);
                 
-                // Update UI with results
-                document.getElementById('vaderScoreValue').textContent = vaderScore.toFixed(2);
-                document.getElementById('vaderSentiment').textContent = vaderSentiment;
-                document.getElementById('vaderSentiment').className = getSentimentClass(vaderSentiment);
-                
-                document.getElementById('bertScoreValue').textContent = bertScore.toFixed(2);
-                document.getElementById('bertSentiment').textContent = bertSentiment;
-                document.getElementById('bertSentiment').className = getSentimentClass(bertSentiment);
-                
-                // Update component scores
-                document.getElementById('vaderPositive').textContent = (vaderPositive * 100).toFixed(1) + '%';
-                document.getElementById('vaderNeutral').textContent = (vaderNeutral * 100).toFixed(1) + '%';
-                document.getElementById('vaderNegative').textContent = (vaderNegative * 100).toFixed(1) + '%';
-                
-                document.getElementById('bertPositive').textContent = (bertPositive * 100).toFixed(1) + '%';
-                document.getElementById('bertNegative').textContent = (bertNegative * 100).toFixed(1) + '%';
-                
-                // Generate explanation of differences
-                document.getElementById('analysisExplanation').innerHTML = generateExplanation(text, vaderScore, bertScore, vaderSentiment, bertSentiment);
-                
-                // Update chart
-                updateComparisonChart(vaderPositive, vaderNeutral, vaderNegative, bertPositive, 0, bertNegative);
+                // Update sentiment text
+                const vaderCategory = getSentimentCategory(vaderScore);
+                const bertCategory = getSentimentCategory(bertScore);
+                updateSentiment('vaderSentiment', vaderCategory);
+                updateSentiment('bertSentiment', bertCategory);
                 
                 // Show results
-                document.getElementById('results').style.display = 'block';
+                outputDiv.style.display = 'block';
+                document.getElementById('modelStatus').innerText = 'Analysis complete!';
             } catch (error) {
-                console.error('Error analyzing sentiment:', error);
-                alert('There was an error analyzing the sentiment. Please try again.');
+                document.getElementById('modelStatus').innerText = 'Error during analysis: ' + error.message;
+                console.error('Analysis error:', error);
             }
+            
+            document.getElementById('analyzeButton').disabled = false;
         }
-        
-        // Simulate VADER sentiment analysis using a simplified approach
-        function simulateVaderAnalysis(text) {
-            // Tokenize text into words
-            const words = text.toLowerCase().match(/\b[\w']+\b/g) || [];
-            
-            let score = 0;
-            let wordCount = words.length;
-            
-            // Initial scoring based on lexicon
-            for (const word of words) {
-                if (vaderLexicon[word]) {
-                    score += vaderLexicon[word];
-                }
-            }
-            
-            // Look for negations (simplified)
-            for (let i = 0; i < words.length - 1; i++) {
-                if ((words[i] === 'not' || words[i] === "n't" || words[i] === 'no' || words[i] === 'never') && 
-                    vaderLexicon[words[i+1]] && vaderLexicon[words[i+1]] !== 0) {
-                    // Negate the next word's sentiment
-                    score -= 2 * vaderLexicon[words[i+1]];
-                }
-            }
-            
-            // Look for intensifiers (simplified)
-            for (let i = 0; i < words.length - 1; i++) {
-                if ((words[i] === 'very' || words[i] === 'really' || words[i] === 'extremely' || words[i] === 'absolutely') && 
-                    vaderLexicon[words[i+1]] && vaderLexicon[words[i+1]] !== 0) {
-                    // Intensify the next word's sentiment
-                    score += 0.5 * vaderLexicon[words[i+1]];
-                }
-            }
-            
-            // Normalize score to -1 to 1 range
-            let normalizedScore = score / (wordCount + 5);  // +5 to prevent extreme values for short texts
-            normalizedScore = Math.max(-1, Math.min(1, normalizedScore)); // Clamp between -1 and 1
-            
-            // Calculate components
-            let positive = 0;
-            let negative = 0;
-            let neutral = 0;
-            
-            if (normalizedScore > 0) {
-                positive = normalizedScore;
-                neutral = 1 - positive;
-            } else if (normalizedScore < 0) {
-                negative = Math.abs(normalizedScore);
-                neutral = 1 - negative;
-            } else {
-                neutral = 1;
-            }
-            
-            return {
-                score: normalizedScore,
-                positive: positive,
-                neutral: neutral,
-                negative: negative
-            };
-        }
-        
-        // Simulate BERT sentiment analysis
-        function simulateBertAnalysis(text) {
-            // This is a simplified simulation of BERT's contextual understanding
-            const words = text.toLowerCase().match(/\b[\w']+\b/g) || [];
-            
-            // Base score calculation similar to VADER but with different processing
-            let score = 0;
-            
-            // Process words contextually
-            for (let i = 0; i < words.length; i++) {
-                const word = words[i];
-                
-                // Base scoring
-                if (vaderLexicon[word]) {
-                    score += vaderLexicon[word] * 0.8; // BERT relies less on individual words
-                }
-                
-                // Context window (looking at surrounding words)
-                let context = 0;
-                for (let j = Math.max(0, i-2); j <= Math.min(words.length-1, i+2); j++) {
-                    if (j !== i && vaderLexicon[words[j]]) {
-                        context += vaderLexicon[words[j]] * 0.2;
-                    }
-                }
-                
-                score += context;
-            }
-            
-            // BERT handles negation differently (more contextually)
-            const text_lower = text.toLowerCase();
-            if (text_lower.includes("not") || text_lower.includes("n't")) {
-                // Look for patterns like "not bad" or "isn't terrible"
-                if (text_lower.includes("not bad") || text_lower.includes("n't bad") || 
-                    text_lower.includes("not horrible") || text_lower.includes("not terrible")) {
-                    score = Math.abs(score) * 0.7; // More nuanced than VADER
-                }
-                // Other negations
-                else if (score !== 0) {
-                    score *= -0.7; // Less extreme flip than VADER
-                }
-            }
-            
-            // BERT is generally less extreme than VADER
-            score = score * 0.85;
-            
-            // Add bias based on text length (BERT is better with longer contexts)
-            if (text.length > 50) {
-                score = score * (1 + (text.length / 500));
-            }
-            
-            // Add some randomness to simulate the neural behavior
-            score += (Math.random() * 0.4 - 0.2);
-            
-            // Normalize score to range -1 to 1
-            let normalizedScore = score / (words.length + 5);
-            normalizedScore = Math.max(-1, Math.min(1, normalizedScore));
-            
-            // Calculate positive/negative components
-            let positive = (normalizedScore + 1) / 2;
-            let negative = 1 - positive;
-            
-            return {
-                score: normalizedScore,
-                positive: positive,
-                negative: negative
-            };
-        }
-        
-        function getSentimentLabel(score) {
-            if (score >= 0.05) return "Positive";
-            if (score <= -0.05) return "Negative";
-            return "Neutral";
-        }
-        
-        function getSentimentClass(sentiment) {
-            if (sentiment === "Positive") return "sentiment-positive";
-            if (sentiment === "Negative") return "sentiment-negative";
-            return "sentiment-neutral";
-        }
-        
-        function updateComparisonChart(vaderPos, vaderNeu, vaderNeg, bertPos, bertNeu, bertNeg) {
-            const ctx = document.getElementById('comparisonChart').getContext('2d');
-            
-            // Destroy previous chart if it exists
-            if (comparisonChart) {
-                comparisonChart.destroy();
-            }
-            
-            comparisonChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['VADER', 'BERT'],
-                    datasets: [
-                        {
-                            label: 'Positive',
-                            data: [vaderPos * 100, bertPos * 100],
-                            backgroundColor: '#27ae60'
-                        },
-                        {
-                            label: 'Neutral',
-                            data: [vaderNeu * 100, bertNeu * 100],
-                            backgroundColor: '#f39c12'
-                        },
-                        {
-                            label: 'Negative',
-                            data: [vaderNeg * 100, bertNeg * 100],
-                            backgroundColor: '#e74c3c'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Sentiment Component Comparison',
-                            font: {
-                                size: 16
-                            }
-                        },
-                        legend: {
-                            position: 'top'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + context.raw.toFixed(1) + '%';
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            stacked: true,
-                        },
-                        y: {
-                            stacked: true,
-                            beginAtZero: true,
-                            max: 100,
-                            title: {
-                                display: true,
-                                text: 'Sentiment Proportion (%)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        function generateExplanation(text, vaderScore, bertScore, vaderSentiment, bertSentiment) {
-            let explanation = '';
-            
-            if (vaderSentiment === bertSentiment) {
-                explanation = `<p>Both models agree that this text has a <strong class="${getSentimentClass(vaderSentiment)}">${vaderSentiment.toLowerCase()}</strong> sentiment.</p>`;
-                
-                if (Math.abs(vaderScore - bertScore) > 0.3) {
-                    explanation += `<p>However, VADER (${vaderScore.toFixed(2)}) and BERT (${bertScore.toFixed(2)}) differ in how strong they consider this sentiment to be.</p>`;
-                }
-            } else {
-                explanation = `<p>The models disagree on this text:</p>
-                <ul>
-                    <li>VADER classifies it as <strong class="${getSentimentClass(vaderSentiment)}">${vaderSentiment.toLowerCase()}</strong> (${vaderScore.toFixed(2)})</li>
-                    <li>BERT classifies it as <strong class="${getSentimentClass(bertSentiment)}">${bertSentiment.toLowerCase()}</strong> (${bertScore.toFixed(2)})</li>
-                </ul>`;
-                
-                // Add possible explanations for disagreement
-                if (text.toLowerCase().includes('not') || text.toLowerCase().includes("n't")) {
-                    explanation += `<p>This disagreement might be because the text contains negations, which VADER and BERT handle differently. BERT tends to analyze negations more contextually.</p>`;
-                }
-                
-                if (text.length > 100) {
-                    explanation += `<p>The text is relatively long, which might benefit BERT's contextual understanding compared to VADER's word-by-word approach.</p>`;
-                }
-            }
-            
-            explanation += `<p><small>Note: This is a simulation for educational purposes that demonstrates the general differences between rule-based and neural approaches to sentiment analysis.</small></p>`;
-            
-            return explanation;
-        }
-        
-        // Initialize with example when page loads
-        window.onload = function() {
-            document.getElementById('textInput').value = "I absolutely loved this movie!";
-        };
     </script>
 </body>
 </html>
