@@ -1,8 +1,10 @@
-Improve page structure and remove redundancy
+Add interactive sentiment analyzer with visualizations
 
-- Eliminated redundant model descriptions between introduction and dedicated sections
-- Combined VADER and RoBERTa sections into a single side-by-side model comparison section
-- Updated navigation to match new structure
-- Enhanced CSS for better visual presentation of model comparison
-- Maintained all mathematical content while reducing repetition
-- Fixed notebook links to point to actual template files
+- Created sentiment.html with JavaScript-based sentiment analyzer
+- Added visualizations comparing VADER and BERT sentiment analysis
+- Implemented real-time sentiment score visualizations with Chart.js
+- Added example texts for easy testing
+- Added detailed component breakdown for both models
+- Included explanations for model differences
+- Updated navigation and added "Live Demo" section
+- Added interactive demo call-to-action on the main page
