@@ -1,10 +1,11 @@
-Add interactive sentiment analyzer with visualizations
+Add lightweight interactive sentiment analyzer with visualizations
 
-- Created sentiment.html with JavaScript-based sentiment analyzer
-- Added visualizations comparing VADER and BERT sentiment analysis
-- Implemented real-time sentiment score visualizations with Chart.js
-- Added example texts for easy testing
-- Added detailed component breakdown for both models
-- Included explanations for model differences
-- Updated navigation and added "Live Demo" section
-- Added interactive demo call-to-action on the main page
+- Created sentiment.html with JavaScript-based sentiment analysis
+- Used sentiment.js library for VADER analysis
+- Added simulated BERT responses to demonstrate differences
+- Implemented visualizations comparing sentiment models
+- Added stacked bar chart for component breakdown
+- Included example texts for easy testing
+- Added detailed explanations for model differences
+- Updated navigation to include "Live Demo" link
+- Added an interactive demo call-to-action on the main page

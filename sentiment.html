@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VADER vs. BERT Sentiment Analysis</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/toxicity"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sentiment"></script>
+    <!-- Use a lighter sentiment library instead of TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/sentiment@5.0.2/dist/sentiment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="css/styles.css">
     <style>
@@ -140,27 +139,6 @@
             background-color: #e1e7ed;
         }
         
-        .loading {
-            text-align: center;
-            margin: 20px 0;
-            display: none;
-        }
-        
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-radius: 50%;
-            border-top: 4px solid #3498db;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
         @media (max-width: 768px) {
             .model-results {
                 grid-template-columns: 1fr;
@@ -179,7 +157,7 @@
     <main class="container">
         <div class="analyzer-container">
             <h2>Interactive Sentiment Analyzer</h2>
-            <p>Enter a text to analyze its sentiment using both VADER (rule-based) and BERT (neural network) models:</p>
+            <p>Enter a text to analyze its sentiment using both VADER (rule-based) and simulated BERT (neural network) models:</p>
             
             <textarea id="textInput" placeholder="Type or paste text here..."></textarea>
             
@@ -192,11 +170,6 @@
             
             <div style="text-align: center; margin-top: 20px;">
                 <button class="button-primary" onclick="analyzeSentiment()">Analyze Sentiment</button>
-            </div>
-            
-            <div id="loading" class="loading">
-                <div class="spinner"></div>
-                <p>Analyzing sentiment...</p>
             </div>
             
             <div id="results" class="results-container">
@@ -235,7 +208,7 @@
                     </div>
                     
                     <div class="model-card">
-                        <h3>BERT</h3>
+                        <h3>BERT (Simulated)</h3>
                         <p>Neural network approach with contextual understanding</p>
                         
                         <div class="score-container">
@@ -281,7 +254,7 @@
             document.getElementById('textInput').value = element.textContent;
         }
         
-        async function analyzeSentiment() {
+        function analyzeSentiment() {
             let text = document.getElementById("textInput").value;
             
             if (text.trim() === "") {
@@ -289,26 +262,21 @@
                 return;
             }
             
-            // Show loading indicator
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('results').style.display = 'none';
-            
             try {
-                // VADER (Rule-Based) Analysis
-                let Sentiment = window["sentiment"];
+                // VADER (Rule-Based) Analysis using the sentiment.js library
+                let Sentiment = window.sentiment;
                 let vaderAnalyzer = new Sentiment();
                 let vaderResult = vaderAnalyzer.analyze(text);
                 
-                // Convert VADER score (-5 to 5 scale) to -1 to 1 scale
-                let vaderScore = vaderResult.score / 5;
+                // Convert score to -1 to 1 range (sentiment.js typically returns between -10 and 10)
+                let vaderScore = vaderResult.score / 10;
                 vaderScore = Math.max(-1, Math.min(1, vaderScore)); // Clamp between -1 and 1
                 
-                // Calculate positive, neutral, negative components
+                // Calculate positive, neutral, negative components based on score
                 let vaderPositive = 0;
                 let vaderNegative = 0;
                 let vaderNeutral = 0;
                 
-                // Simple approximation of VADER components
                 if (vaderScore > 0) {
                     vaderPositive = vaderScore;
                     vaderNeutral = 1 - vaderScore;
@@ -319,17 +287,11 @@
                     vaderNeutral = 1;
                 }
                 
-                // BERT (TensorFlow.js) Analysis
-                const model = await toxicity.load(0.5);
-                let predictions = await model.classify(text);
-                
-                let toxicityPrediction = predictions.find(pred => pred.label === "toxicity");
-                let isToxic = toxicityPrediction ? toxicityPrediction.results[0].match : false;
-                let bertNegProb = toxicityPrediction ? toxicityPrediction.results[0].probabilities[1] : 0.5;
-                let bertPosProb = 1 - bertNegProb;
-                
-                // Convert toxicity to sentiment score (-1 to 1 scale)
-                let bertScore = bertPosProb - bertNegProb;
+                // Simulate BERT based on the text content (in reality, BERT would be much more complex)
+                // This is a simplified simulation for demonstration purposes
+                let bertScore = simulateBertScore(text);
+                let bertPositive = (bertScore + 1) / 2; // Convert -1 to 1 to 0 to 1
+                let bertNegative = 1 - bertPositive;
                 
                 // Determine sentiment labels
                 let vaderSentiment = getSentimentLabel(vaderScore);
@@ -349,24 +311,84 @@
                 document.getElementById('vaderNeutral').textContent = (vaderNeutral * 100).toFixed(1) + '%';
                 document.getElementById('vaderNegative').textContent = (vaderNegative * 100).toFixed(1) + '%';
                 
-                document.getElementById('bertPositive').textContent = (bertPosProb * 100).toFixed(1) + '%';
-                document.getElementById('bertNegative').textContent = (bertNegProb * 100).toFixed(1) + '%';
+                document.getElementById('bertPositive').textContent = (bertPositive * 100).toFixed(1) + '%';
+                document.getElementById('bertNegative').textContent = (bertNegative * 100).toFixed(1) + '%';
                 
                 // Generate explanation of differences
                 document.getElementById('analysisExplanation').innerHTML = generateExplanation(text, vaderScore, bertScore, vaderSentiment, bertSentiment);
                 
                 // Update chart
-                updateComparisonChart(vaderPositive, vaderNeutral, vaderNegative, bertPosProb, 0, bertNegProb);
+                updateComparisonChart(vaderPositive, vaderNeutral, vaderNegative, bertPositive, 0, bertNegative);
                 
                 // Show results
                 document.getElementById('results').style.display = 'block';
             } catch (error) {
                 console.error('Error analyzing sentiment:', error);
                 alert('There was an error analyzing the sentiment. Please try again.');
-            } finally {
-                // Hide loading indicator
-                document.getElementById('loading').style.display = 'none';
             }
+        }
+        
+        // Simulate BERT sentiment analysis
+        function simulateBertScore(text) {
+            // This is a simplified simulation of BERT's contextual understanding
+            // In reality, BERT would use a complex neural network to analyze sentiment
+            
+            // Baseline sentiment
+            let score = 0;
+            
+            // Check for positive words
+            const positiveWords = ['good', 'great', 'excellent', 'amazing', 'wonderful', 'love', 'happy', 'best', 'perfect', 'awesome'];
+            // Check for negative words
+            const negativeWords = ['bad', 'terrible', 'awful', 'horrible', 'hate', 'worst', 'poor', 'disappointed', 'disappointing'];
+            
+            // Convert to lowercase for comparison
+            const lowerText = text.toLowerCase();
+            
+            // Count positive and negative words
+            let positiveCount = 0;
+            let negativeCount = 0;
+            
+            for (const word of positiveWords) {
+                if (lowerText.includes(word)) {
+                    positiveCount++;
+                }
+            }
+            
+            for (const word of negativeWords) {
+                if (lowerText.includes(word)) {
+                    negativeCount++;
+                }
+            }
+            
+            // Basic sentiment score
+            score = (positiveCount - negativeCount) / Math.max(1, positiveCount + negativeCount);
+            
+            // Contextual adjustments to simulate BERT's understanding
+            
+            // Negation handling (more sophisticated than VADER)
+            if ((lowerText.includes("not ") || lowerText.includes("n't ")) && 
+                (positiveCount > 0 || negativeCount > 0)) {
+                // BERT would better understand negation in context
+                score = score * -0.8; // Less extreme flip than simple negation
+            }
+            
+            // Handling of intensifiers
+            if (lowerText.includes("very ") || lowerText.includes("really ") || 
+                lowerText.includes("extremely ") || lowerText.includes("absolutely ")) {
+                score = score * 1.5;
+            }
+            
+            // Longer text context awareness (BERT is better with longer contexts)
+            if (text.length > 100) {
+                // Bias slightly toward neutral for longer texts to simulate BERT's nuanced understanding
+                score = score * 0.9;
+            }
+            
+            // Add some randomness to simulate the unpredictability of a neural model
+            score += (Math.random() * 0.3 - 0.15);
+            
+            // Ensure score is between -1 and 1
+            return Math.max(-1, Math.min(1, score));
         }
         
         function getSentimentLabel(score) {
@@ -469,13 +491,15 @@
                 
                 // Add possible explanations for disagreement
                 if (text.includes('not') || text.includes("n't")) {
-                    explanation += `<p>This disagreement might be because the text contains negations, which VADER's rule-based approach explicitly handles, while BERT might interpret the context differently.</p>`;
+                    explanation += `<p>This disagreement might be because the text contains negations, which VADER and BERT handle differently.</p>`;
                 }
                 
                 if (text.length > 100) {
                     explanation += `<p>The text is relatively long, which might benefit BERT's contextual understanding compared to VADER's word-by-word approach.</p>`;
                 }
             }
+            
+            explanation += `<p><small>Note: This demo uses the actual sentiment.js library for VADER analysis, but simulates BERT responses for demonstration purposes.</small></p>`;
             
             return explanation;
         }
